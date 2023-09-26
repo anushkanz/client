@@ -1,25 +1,30 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-function App() {
+import Home from "./components/Home";
+import Driver from "./components/Driver";
+import BookRide from "./components/BookRide";
+import Error from "./components/Error";
+/**
+ * Render the main application component.
+ *
+ * @return {JSX.Element} The rendered application component.
+ */
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="min-h-screen">
+      <div className="gradient-bg-welcome">
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/bookride" element={<BookRide />} />
+            <Route path="/drive" element={<Driver />} />
+            <Route element={<Error />} />
+          </Routes>
+        </BrowserRouter>
+      </div>
     </div>
   );
-}
+};
 
 export default App;
