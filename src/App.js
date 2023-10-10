@@ -18,7 +18,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/bookride" element={<BookRide />} />
-            <Route path="/drive" element={<Driver />} />
+            <Route path="/driver" element={<Driver />} />
             <Route element={<Error />} />
           </Routes>
         </BrowserRouter>

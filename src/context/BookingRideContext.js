@@ -33,16 +33,6 @@ const createEthereumBookingContract = () => {
 export const BookingRideProvider = ({ children }) => {
   const [currentAccount, setCurrentAccount] = useState("");
 
-  const [formData, setformData] = useState({
-    name: "",
-    date: "",
-    start: "",
-    dropoff: "",
-    price: "",
-    people: "",
-  });
-
-  const [transactions, setTransactions] = useState([]);
   //Check wallet is connected or not, then connect wallet if not
   const checkIfWalletIsConnect = async () => {
     try {
@@ -152,7 +142,7 @@ export const BookingRideProvider = ({ children }) => {
   };
 
   // Accept a booking (assuming you're a driver)
-  const driverAcceptBooking = async () => {
+  const driverAcceptBooking = async (bookingIdToAccept) => {
     try {
       const bookingRideContract = createEthereumBookingContract();
       const bookingIdToAccept = 1; // Replace with the booking ID you want to accept, id need to pass from front end
@@ -189,10 +179,10 @@ export const BookingRideProvider = ({ children }) => {
   };
 
   // Initiate payment (assuming you're the booking user)
-  const payDriver = async () => {
+  const payDriver = async (bookingIdToPay) => {
     try {
       const bookingRideContract = createEthereumBookingContract();
-      const bookingIdToPay = 1; // Replace with the booking ID you want to pay for , id need to pass from front end
+      //const bookingIdToPay = 1; // Replace with the booking ID you want to pay for , id need to pass from front end
       try {
         const payDriverTx = await bookingRideContract.payDriver(bookingIdToPay);
         await payDriverTx.wait();
@@ -207,7 +197,6 @@ export const BookingRideProvider = ({ children }) => {
   const addDriver = async () => {
     try {
       const bookingRideContract = createEthereumBookingContract();
-      const bookingIdToPay = 1; // Replace with the booking ID you want to pay for , id need to pass from front end
       try {
         const addDriverTx = await bookingRideContract.addDriver();
         await addDriverTx.wait();
@@ -253,23 +242,23 @@ export const BookingRideProvider = ({ children }) => {
     try {
       if (ethereum) {
         const transactionsContract = createEthereumBookingContract();
-        console.log(transactionsContract);
-        const availableTransactions = await transactionsContract.getBookings();
-
-        const structuredTransactions = availableTransactions.map(
-          (transaction) => ({
-            addressTo: transaction.receiver,
-            addressFrom: transaction.sender,
-            timestamp: new Date(
-              transaction.timestamp.toNumber() * 1000
-            ).toLocaleString(),
-            message: transaction.message,
-            amount: parseInt(transaction.amount._hex) / 10 ** 18,
-          })
-        );
-
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const availablePromise = await transactionsContract.getBookings();
+        //const availableTransactions = await availablePromise;
+        //console.log(availablePromise);
+        const structuredTransactions = availablePromise.map((transaction) => ({
+          user: transaction.user,
+          timestamp: new Date(transaction.date.toNumber()).toLocaleString(),
+          pickup: transaction.pickup,
+          dropoff: transaction.dropoff,
+          people: parseInt(transaction.people._hex),
+          fare: parseInt(transaction.fare._hex) / 10 ** 18,
+        }));
+        //setTransactions(structuredTransactions);
+        //const varLab = ["123", "234", "345"];
         console.log(structuredTransactions);
-        setTransactions(structuredTransactions);
+        return structuredTransactions;
       } else {
         console.log("Ethereum is not present");
       }

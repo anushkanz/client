@@ -5,11 +5,7 @@ import { BsInfoCircle } from "react-icons/bs";
 import { BookingRideContext } from "../context/BookingRideContext";
 import { shortenAddress } from "../utils/shortenAddress";
 import Autocomplete from "react-google-autocomplete";
-import {
-  GoogleMap,
-  useJsApiLoader,
-  DirectionsRenderer,
-} from "@react-google-maps/api";
+import { GoogleMap, DirectionsRenderer } from "@react-google-maps/api";
 const companyCommonStyles =
   "min-h-[70px] sm:px-0 px-2 sm:min-w-[120px] flex justify-center items-center border-[0.5px] border-gray-400 text-sm font-light text-white";
 
@@ -48,8 +44,10 @@ function Home() {
     connectWallet,
     disConnectWallet,
     handleChange,
-    getBookings,
+    transactions,
   } = useContext(BookingRideContext);
+  console.log(transactions);
+
   const originRef = useRef();
   const destiantionRef = useRef();
   const [startLocation, setStartLocation] = useState([]);
@@ -58,10 +56,10 @@ function Home() {
   const [duration, setDuration] = useState("");
   const [rest, setRest] = useState([]);
 
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: "AIzaSyCXbMf-XXrTqEmR_vawob7x1kfC7HB6FX0",
-    libraries: ["places"],
-  });
+  // const { isLoaded } = useJsApiLoader({
+  //   googleMapsApiKey: "AIzaSyCXbMf-XXrTqEmR_vawob7x1kfC7HB6FX0",
+  //   libraries: ["places"],
+  // });
 
   /**
    * Handles the form submission event.
@@ -69,8 +67,6 @@ function Home() {
    * @param {Event} event - The form submission event.
    * @return {void} - Does not return a value.
    */
-
-  //getBookings();
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -176,6 +172,7 @@ function Home() {
                 <p className="text-white font-light text-sm">
                   {shortenAddress(currentAccount)}
                 </p>
+                <p> </p>
                 <p className="text-white font-semibold text-lg mt-1">
                   Ethereum
                 </p>

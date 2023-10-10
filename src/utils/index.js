@@ -1,4 +1,4 @@
-const CONTRACT_ADDRESS = "0x16179764Ee5975ED6d53915BE5bcFDb8601B5157";
+const CONTRACT_ADDRESS = "0x9D85389978a403920f1F278487ef331Bd7cE319C";
 const CONTRACT_ABI = [
   {
     inputs: [],
@@ -45,6 +45,12 @@ const CONTRACT_ABI = [
         internalType: "uint256",
         name: "id",
         type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "name",
+        type: "string",
       },
       {
         indexed: true,
@@ -154,6 +160,11 @@ const CONTRACT_ABI = [
         type: "uint256",
       },
       {
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
+      {
         internalType: "address",
         name: "user",
         type: "address",
@@ -217,6 +228,11 @@ const CONTRACT_ABI = [
   },
   {
     inputs: [
+      {
+        internalType: "string",
+        name: "_name",
+        type: "string",
+      },
       {
         internalType: "uint256",
         name: "_fare",
@@ -301,6 +317,11 @@ const CONTRACT_ABI = [
             internalType: "uint256",
             name: "id",
             type: "uint256",
+          },
+          {
+            internalType: "string",
+            name: "name",
+            type: "string",
           },
           {
             internalType: "address",
