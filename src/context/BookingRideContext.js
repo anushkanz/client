@@ -56,11 +56,9 @@ export const BookingRideProvider = ({ children }) => {
   const connectWallet = async () => {
     try {
       if (!ethereum) return alert("Please install MetaMask.");
-
       const accounts = await ethereum.request({
         method: "eth_requestAccounts",
       });
-
       setCurrentAccount(accounts[0]);
       window.location.reload();
     } catch (error) {
@@ -108,6 +106,7 @@ export const BookingRideProvider = ({ children }) => {
 
       try {
         const createBookingTx = await bookingRideContract.createBooking(
+          name,
           fare,
           start,
           dropoff,
@@ -116,6 +115,7 @@ export const BookingRideProvider = ({ children }) => {
         );
         await createBookingTx.wait();
         console.log(createBookingTx);
+        window.location.reload();
       } catch (error) {
         console.error(error);
       }
@@ -246,18 +246,20 @@ export const BookingRideProvider = ({ children }) => {
         const signer = provider.getSigner();
         const availablePromise = await transactionsContract.getBookings();
         //const availableTransactions = await availablePromise;
-        //console.log(availablePromise);
+        console.log(availablePromise);
         const structuredTransactions = availablePromise.map((transaction) => ({
           user: transaction.user,
+          name: transaction.name,
+          datetime: transaction.date.toNumber(),
           timestamp: new Date(transaction.date.toNumber()).toLocaleString(),
           pickup: transaction.pickup,
           dropoff: transaction.dropoff,
           people: parseInt(transaction.people._hex),
           fare: parseInt(transaction.fare._hex) / 10 ** 18,
+          driver: transaction.driver,
         }));
         //setTransactions(structuredTransactions);
         //const varLab = ["123", "234", "345"];
-        console.log(structuredTransactions);
         return structuredTransactions;
       } else {
         console.log("Ethereum is not present");
