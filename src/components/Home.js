@@ -52,6 +52,7 @@ function Home() {
     handleChange,
     transactions,
     getBookings,
+    payDriver,
   } = useContext(BookingRideContext);
   const originRef = useRef();
   const destiantionRef = useRef();
@@ -60,6 +61,12 @@ function Home() {
   const [distance, setDistance] = useState("");
   const [duration, setDuration] = useState("");
   const [rest, setRest] = useState([]);
+
+  const handlePayClick = (e) => {
+    e.preventDefault();
+    payDriver(e.target.value);
+    console.log(e.target.value);
+  };
 
   /**
    * Handles the form submission event.
@@ -225,7 +232,6 @@ function Home() {
                         defaultValue=""
                         onPlaceSelected={(place) => {
                           setStartLocation((inputs) => [...inputs, place]);
-                          console.log(place);
                         }}
                       />
                       <Autocomplete
@@ -248,7 +254,6 @@ function Home() {
                         defaultValue=""
                         onPlaceSelected={(place) => {
                           setDropLocation((inputs) => [...inputs, place]);
-                          console.log(place);
                         }}
                       />
 
@@ -300,8 +305,11 @@ function Home() {
                     <th scope="col" className="px-3 py-3">
                       Fare
                     </th>
-                    <th scope="col" className="px-3 py-3">
+                    <th scope="col" className="px-2 py-2">
                       People Count
+                    </th>
+                    <th scope="col" className="px-3 py-3">
+                      &nbsp;
                     </th>
                   </tr>
                 </thead>
@@ -322,7 +330,23 @@ function Home() {
                           <td className="px-6 py-4">{transaction.dropoff}</td>
                           <td className="px-6 py-4">{transaction.timestamp}</td>
                           <td className="px-3 py-4">{transaction.fare}</td>
-                          <td className="px-3 py-3">{transaction.people}</td>
+                          <td className="px-2 py-2">{transaction.people}</td>
+                          <td className="px-3 py-3">
+                            {transaction.isCompleted === true &&
+                            transaction.driver !==
+                              "0x0000000000000000000000000000000000000000" ? (
+                              <button
+                                type="button"
+                                value={index}
+                                onClick={handlePayClick}
+                                className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                              >
+                                Pay
+                              </button>
+                            ) : (
+                              <p>Job not assigned</p>
+                            )}
+                          </td>
                         </tr>
                       )
                   )}

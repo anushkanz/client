@@ -32,6 +32,7 @@ const createEthereumBookingContract = () => {
  */
 export const BookingRideProvider = ({ children }) => {
   const [currentAccount, setCurrentAccount] = useState("");
+  const [currentDriverAccount, setDriverCurrentAccount] = useState("");
 
   //Check wallet is connected or not, then connect wallet if not
   const checkIfWalletIsConnect = async () => {
@@ -72,6 +73,31 @@ export const BookingRideProvider = ({ children }) => {
     }
   };
 
+  const isRegisterdDriver = async () => {
+    try {
+      if (ethereum) {
+        const transactionsContract = createEthereumBookingContract();
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const availablePromise =
+          await transactionsContract.getRegisteredDriversList();
+        const accounts = await ethereum.request({ method: "eth_accounts" });
+        if (accounts.length > 0) {
+          availablePromise.forEach((val, index) => {
+            console.log(val.toUpperCase());
+            if (accounts[0].toUpperCase() === val.toUpperCase()) {
+              setDriverCurrentAccount(true);
+            }
+          });
+        }
+      } else {
+        console.log("Ethereum is not present");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   /**
    * Creates a booking using the provided form data.
    *
@@ -89,21 +115,8 @@ export const BookingRideProvider = ({ children }) => {
     try {
       const bookingRideContract = createEthereumBookingContract();
       const bookingFix = (distance / 1000) * 1; // price per kilometer is 0.1 and formula can change
-
+      console.log(bookingRideContract);
       const fare = ethers.utils.parseEther(bookingFix.toString()); // Replace with the fare amount in Ether
-
-      console.log(
-        currentAccount,
-        name,
-        date,
-        start,
-        dropoff,
-        people,
-        distance,
-        duration,
-        fare
-      );
-
       try {
         const createBookingTx = await bookingRideContract.createBooking(
           name,
@@ -123,6 +136,45 @@ export const BookingRideProvider = ({ children }) => {
       console.error(error);
     }
   };
+
+  // const createBooking = async (
+  //   name,
+  //   date,
+  //   start,
+  //   dropoff,
+  //   people,
+  //   distance,
+  //   duration
+  // ) => {
+  //   // name = ethers.utils.formatBytes32String(name);
+  //   // pickup = ethers.utils.formatBytes32String(start);
+  //   // dropoff = ethers.utils.formatBytes32String(dropoff);
+  //   console.log(currentAccount);
+  //   const bookingFix = (distance / 1000) * 1;
+  //   const value = ethers.utils.parseEther(bookingFix.toString());
+  //   try {
+  //     const bookingRideContract = createEthereumBookingContract();
+  //     // Call the createBooking function
+  //     const tx = await bookingRideContract.createBooking(
+  //       name,
+  //       value,
+  //       start,
+  //       dropoff,
+  //       date,
+  //       people,
+  //       {
+  //         value: value,
+  //       }
+  //     );
+
+  //     await tx.wait();
+  //     console.log(tx);
+  //     window.location.reload();
+  //     console.log("Booking created successfully.");
+  //   } catch (error) {
+  //     console.error("Error creating booking:", error);
+  //   }
+  // };
   /**
    * Disconnects the wallet.
    *
@@ -145,7 +197,7 @@ export const BookingRideProvider = ({ children }) => {
   const driverAcceptBooking = async (bookingIdToAccept) => {
     try {
       const bookingRideContract = createEthereumBookingContract();
-      const bookingIdToAccept = 1; // Replace with the booking ID you want to accept, id need to pass from front end
+      //const bookingIdToAccept = 1; // Replace with the booking ID you want to accept, id need to pass from front end
       try {
         const acceptBookingTx = await bookingRideContract.acceptBooking(
           bookingIdToAccept
@@ -161,15 +213,34 @@ export const BookingRideProvider = ({ children }) => {
   };
 
   // Complete a booking (assuming you're the assigned driver)
-  const completeBooking = async () => {
+  const completeBooking = async (completeComplete) => {
     try {
       const bookingRideContract = createEthereumBookingContract();
-      const bookingIdToComplete = 1; // Replace with the booking ID you want to complete , id need to pass from front end
+      //const bookingIdToComplete = 1; // Replace with the booking ID you want to complete , id need to pass from front end
       try {
         const completeBookingTx = await bookingRideContract.completeBooking(
-          bookingIdToComplete
+          completeComplete
         );
         await completeBookingTx.wait();
+        window.location.reload();
+      } catch (error) {
+        console.log(error);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const completePicupComplete = async (completePickUp) => {
+    try {
+      const bookingRideContract = createEthereumBookingContract();
+      //const bookingIdToComplete = 1; // Replace with the booking ID you want to complete , id need to pass from front end
+      try {
+        const completeBookingTx = await bookingRideContract.markPickupCompleted(
+          completePickUp
+        );
+        await completeBookingTx.wait();
+        window.location.reload();
       } catch (error) {
         console.log(error);
       }
@@ -186,6 +257,7 @@ export const BookingRideProvider = ({ children }) => {
       try {
         const payDriverTx = await bookingRideContract.payDriver(bookingIdToPay);
         await payDriverTx.wait();
+        window.location.reload();
       } catch (error) {
         console.log(error);
       }
@@ -205,6 +277,23 @@ export const BookingRideProvider = ({ children }) => {
       }
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const markPickupCompleted = async (bookingId) => {
+    try {
+      const bookingRideContract = createEthereumBookingContract();
+      // Call the `markPickupCompleted` function
+      try {
+        const payDriverTx = await bookingRideContract.markPickupCompleted(
+          bookingId
+        );
+        await payDriverTx.wait();
+      } catch (error) {
+        console.log(error);
+      }
+    } catch (error) {
+      console.error("Error marking pickup as completed:", error);
     }
   };
 
@@ -246,7 +335,7 @@ export const BookingRideProvider = ({ children }) => {
         const signer = provider.getSigner();
         const availablePromise = await transactionsContract.getBookings();
         //const availableTransactions = await availablePromise;
-        console.log(availablePromise);
+
         const structuredTransactions = availablePromise.map((transaction) => ({
           user: transaction.user,
           name: transaction.name,
@@ -257,7 +346,11 @@ export const BookingRideProvider = ({ children }) => {
           people: parseInt(transaction.people._hex),
           fare: parseInt(transaction.fare._hex) / 10 ** 18,
           driver: transaction.driver,
+          isCompleted: transaction.isCompleted,
+          isPaid: transaction.isPaid,
+          isPickup: transaction.isPickup,
         }));
+
         //setTransactions(structuredTransactions);
         //const varLab = ["123", "234", "345"];
         return structuredTransactions;
@@ -271,6 +364,7 @@ export const BookingRideProvider = ({ children }) => {
 
   useEffect(() => {
     checkIfWalletIsConnect();
+    isRegisterdDriver();
   }, []);
 
   return (
@@ -279,9 +373,11 @@ export const BookingRideProvider = ({ children }) => {
         connectWallet,
         disConnectWallet,
         currentAccount,
+        currentDriverAccount,
         createBooking,
         driverAcceptBooking,
         completeBooking,
+        completePicupComplete,
         withdrawFunds,
         setDriverAvailability,
         addDriver,

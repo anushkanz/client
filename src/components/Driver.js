@@ -17,17 +17,33 @@ function Driver() {
   const {
     createBooking,
     currentAccount,
+    currentDriverAccount,
     connectWallet,
     disConnectWallet,
     handleChange,
     getBookings,
+    isRegisterdDriver,
     addDriver,
     driverAcceptBooking,
+    completeBooking,
+    completePicupComplete,
   } = useContext(BookingRideContext);
+
+  console.log(currentDriverAccount);
+
   const handleClick = (e) => {
     e.preventDefault();
     driverAcceptBooking(e.target.value);
-    console.log(e.target.value);
+  };
+
+  const handleCompleteClick = (e) => {
+    e.preventDefault();
+    completeBooking(e.target.value);
+  };
+
+  const handlePickUpClick = (e) => {
+    e.preventDefault();
+    completePicupComplete(e.target.value);
   };
 
   const handleAddDriverClick = (e) => {
@@ -35,11 +51,24 @@ function Driver() {
     addDriver();
   };
   const [data, setData] = useState([]);
+  const [drivers, setDrivers] = useState([]);
+  const [driver, setDriver] = useState(false);
+
   useLayoutEffect(() => {
     getBookings().then((dataBookings) => {
       setData(dataBookings);
     });
+
+    // isRegisterdDriver().then((registerdDrivers) => {
+    //   console.log(registerdDrivers);
+    //   registerdDrivers.forEach((val, index) => {
+    //     if (currentAccount.toUpperCase() === val.toUpperCase()) {
+    //       setDriver(true);
+    //     }
+    //   });
+    // });
   }, []);
+
   return (
     <div className="container mx-auto">
       <div className="flex w-full justify-center items-center">
@@ -51,17 +80,18 @@ function Driver() {
             <p className="text-left mt-5 text-white font-light md:w-9/12 w-11/12 text-base">
               Pay to your ride using Crypto, No
             </p>
-
-            <button
-              type="button"
-              onClick={handleAddDriverClick}
-              className="flex flex-row justify-center items-center my-5 bg-[#2952e3] p-3 rounded-full cursor-pointer hover:bg-[#2546bd]"
-            >
-              <AiFillPlayCircle className="text-white mr-2" />
-              <p className="text-white text-base font-semibold">
-                Login as Driver
-              </p>
-            </button>
+            {!driver && (
+              <button
+                type="button"
+                onClick={handleAddDriverClick}
+                className="flex flex-row justify-center items-center my-5 bg-[#2952e3] p-3 rounded-full cursor-pointer hover:bg-[#2546bd]"
+              >
+                <AiFillPlayCircle className="text-white mr-2" />
+                <p className="text-white text-base font-semibold">
+                  Login as Driver
+                </p>
+              </button>
+            )}
 
             <div className="grid sm:grid-cols-3 grid-cols-2 w-full mt-10"></div>
           </div>
@@ -136,18 +166,62 @@ function Driver() {
                     <td className="px-3 py-4">{transaction.fare}</td>
                     <td className="px-3 py-3">{transaction.people}</td>
                     <td className="px-6 py-4">
-                      {transaction.driver ===
-                      "0x0000000000000000000000000000000000000000" ? (
+                      {transaction.isPickup === false &&
+                      transaction.isCompleted === false &&
+                      transaction.driver ===
+                        "0x0000000000000000000000000000000000000000" ? (
                         <button
                           type="button"
                           value={index}
                           onClick={handleClick}
                           className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
                         >
-                          Take this Job
+                          Accept
                         </button>
                       ) : (
-                        <p>Booked by {shortenAddress(transaction.driver)}</p>
+                        <></>
+                      )}
+
+                      {transaction.isPickup === false &&
+                      transaction.isCompleted === false &&
+                      transaction.driver !==
+                        "0x0000000000000000000000000000000000000000" ? (
+                        <button
+                          type="button"
+                          value={index}
+                          onClick={handlePickUpClick}
+                          className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                        >
+                          Pick up
+                        </button>
+                      ) : (
+                        <p></p>
+                      )}
+
+                      {transaction.isPickup === true &&
+                      transaction.isCompleted === false &&
+                      transaction.driver !==
+                        "0x0000000000000000000000000000000000000000" ? (
+                        <button
+                          type="button"
+                          value={index}
+                          onClick={handleCompleteClick}
+                          className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                        >
+                          Complete
+                        </button>
+                      ) : (
+                        <p></p>
+                      )}
+
+                      {transaction.isPickup === true &&
+                      transaction.isCompleted === true &&
+                      transaction.isPaid === true &&
+                      transaction.driver !==
+                        "0x0000000000000000000000000000000000000000" ? (
+                        <p>Completed</p>
+                      ) : (
+                        <p>Waiting Payment</p>
                       )}
                     </td>
                   </tr>
